@@ -53,23 +53,22 @@ export default function App() {
 	const taskSummary = useRef('');
 
 	async function createTask() {
+		//Since this function waits, this value should be saved beofre it is overwritten.
 		const tempTitle = taskTitle.current.value;
-		//Check if task summary already filled
+
+		//Check if task summary already filled, if not, fill it with GPT
 		let tempSummary = taskSummary.current.value;
 		if (taskSummary.current.value) {
-			console.log(taskSummary.current.value);
-		} else { //Otherwise generate a summary
-			console.log('No task summary');
+			//console.log(taskSummary.current.value);
+		} else { //Otherwise generate a tasklist
 			tempSummary = await getGPTResponse(taskTitle.current.value);
-			console.log(`Summary has been set to: ${tempSummary}`);
+			//console.log(`Summary has been set to: ${tempSummary}`);
 		}
 
 		setTasks([
 			...tasks,
 			{
 				title: tempTitle,
-				//summary: taskSummary.current.value,
-				// summary: 'My summary test',
 				summary: tempSummary,
 			},
 		]);
@@ -78,7 +77,6 @@ export default function App() {
 			...tasks,
 			{
 				title: tempTitle,
-				// summary: taskSummary.current.value,
 				summary: tempSummary,
 			},
 		]);
@@ -110,11 +108,6 @@ export default function App() {
 
 	// Get GPT response
 	async function getGPTResponse(task_title) {
-		// return `Test GPT Response\n
-		// 		1. step 1\n
-		// 		2. step 2\n
-		// 		3. step 3`;
-
 		const pre_prompt = `Title: Clean room\n
 							Steps: 1. Pick up trash\n2. Dust\n3. Move funiture\n4. Vacuum\n5. Polish furniture\n
 							Title: Take out the trash\n
@@ -133,7 +126,6 @@ export default function App() {
 			  })
 			  .then((response) => {
 				const content = response.data.choices[0].message.content.trim();
-				console.log(content);
 				resolve(content);
 			  })
 			  .catch((error) => {
@@ -141,23 +133,6 @@ export default function App() {
 				reject(error);
 			  });
 		  });
-
-
-		console.log('After expected response');
-		
-		// try {
-		// 	const response = await openai.createCompletion({
-		// 		model: "text-davinci-003",
-		// 		prompt: `${pre_prompt}: task_title\n
-		// 				${post_prompt}: `,
-		// 		max_tokens:4000
-		// 		});
-
-		// 	return response.data.choices[0].text;
-		//   } catch(error) {
-		// 	console.error(error);
-		// 	alert(error.message);
-		//   }
 	}
 
 	useEffect(() => {

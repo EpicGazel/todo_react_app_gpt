@@ -1,16 +1,13 @@
-<h1 align="center">Todo React App  📝</h1>  
+<h1 align="center">Todo React App W/GPT Autocompletion 📝</h1>  
 <p align="center">
-  🖊️ A simple Todo App built using <a href="https://reactjs.org/">React</a> and <a href="https://mantine.dev/">Mantine UI</a>
+  🖊️ A Tweaked Todo App built using <a href="https://reactjs.org/">React</a>, <a href="https://mantine.dev/">Mantine UI</a>, and <a href="https://openai.com/blog/chatgpt">ChatGPT</a>.
 </p>
 
-## This is a super simple Todo App built using React.js and styled using Mantine UI.
+## I have tweaked javascriptbear's original app to have GPT-3.5 autocompletion of unfilled summaries.
 
-You can view a live demo of the project here: https://javascriptbear.github.io/todo_react_app/
-Or, you can watch this video demo
+Check out the video demo below.
 
-### **(Most likely outdated, its reccomeneded you check out the live demo!)**
 
-https://user-images.githubusercontent.com/109053279/178185429-8de77574-cc2f-429f-8c4e-b1ed9f290894.mp4
 
 ## 😃 Features:
 
@@ -19,7 +16,21 @@ https://user-images.githubusercontent.com/109053279/178185429-8de77574-cc2f-429f
 - ⏸ Save todos to Local Storage when the state changes
 - ▶️ Load the todos from Local Storage when the site is loaded again
 - 🌙 Light \ dark mode toggle
+- 🧠 Smart summary autofill using GPT-3.5
 
 <p align="center">
   ❤️ Feel free to create issues and contributions for features or bugs to this project.
 </p>
+
+# Note:
+
+If you have issues realted to 'fs', 'os', 'path', 'crypto', edit webpack.config.js with:
+```resolve: {
+  ...
+  fallback: {
+          "fs": false,
+          "os": false,
+          "path": false
+        },
+}```
+<a href="https://stackoverflow.com/a/62011612">Issue Link</a>
