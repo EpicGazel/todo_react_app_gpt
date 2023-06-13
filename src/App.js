@@ -24,6 +24,16 @@ import { useHotkeys, useLocalStorage } from '@mantine/hooks';
 //Set up for OpenAI API
 const tectalicOpenai = require('@tectalic/openai').default;
 
+//Fix user-agent issue
+const setRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
+XMLHttpRequest.prototype.setRequestHeader = function newSetRequestHeader(key, val) {
+    if (key.toLocaleLowerCase() === 'user-agent') {
+        return;
+    }
+    setRequestHeader.apply(this, [key, val]);
+};
+
+
 export default function App() {
 	const [tasks, setTasks] = useState([]);
 	const [opened, setOpened] = useState(false);
@@ -42,20 +52,22 @@ export default function App() {
 	const taskTitle = useRef('');
 	const taskSummary = useRef('');
 
-	function createTask() {
+	async function createTask() {
+		const tempTitle = taskTitle.current.value;
 		//Check if task summary already filled
 		let tempSummary = taskSummary.current.value;
 		if (taskSummary.current.value) {
 			console.log(taskSummary.current.value);
 		} else { //Otherwise generate a summary
 			console.log('No task summary');
-			tempSummary = getGPTResponse(taskTitle.current.value);
+			tempSummary = await getGPTResponse(taskTitle.current.value);
+			console.log(`Summary has been set to: ${tempSummary}`);
 		}
 
 		setTasks([
 			...tasks,
 			{
-				title: taskTitle.current.value,
+				title: tempTitle,
 				//summary: taskSummary.current.value,
 				// summary: 'My summary test',
 				summary: tempSummary,
@@ -65,7 +77,7 @@ export default function App() {
 		saveTasks([
 			...tasks,
 			{
-				title: taskTitle.current.value,
+				title: tempTitle,
 				// summary: taskSummary.current.value,
 				summary: tempSummary,
 			},
@@ -97,31 +109,40 @@ export default function App() {
 	}
 
 	// Get GPT response
-	function getGPTResponse(task_title) {
-		// return 'Test GPT Response';
+	async function getGPTResponse(task_title) {
+		// return `Test GPT Response\n
+		// 		1. step 1\n
+		// 		2. step 2\n
+		// 		3. step 3`;
 
-		// const openaiClient = tectalicOpenai(process.env.OPENAI_API_KEY);
-		// console.log(process.env.OPENAI_API_KEY);
-		// const openaiClient = tectalicOpenai(apiKey);
-
-		const pre_prompt = '(I am the pre prompt)';
-		const post_prompt = '(I am the post prompt)';
-		const prompt = `${pre_prompt}: ${task_title}\n
-						${post_prompt}: `;
-
-		try {
-			tectalicOpenai(config.OPENAI_API_KEY)
-			.chatCompletions.create({
-				model: 'text-davinci-003',
-				messages: [{ role: 'user', content: prompt }]
-			})
-			.then((response) => {
-				return response.data.choices[0].message.content.trim();
-			});
-		} catch (error) {
-			console.log('ChatGPT request errored.')
-		}
+		const pre_prompt = `Title: Clean room\n
+							Steps: 1. Pick up trash\n2. Dust\n3. Move funiture\n4. Vacuum\n5. Polish furniture\n
+							Title: Take out the trash\n
+							Steps: 1. Take bag from trash can\n2. Tie trash bag\n3. Replace with new trash bag\n4. Put trash bag in outside bin\n
+							Title: `;
+		const post_prompt = 'Steps: ';
+		const prompt = `${pre_prompt}${task_title}\n
+						${post_prompt}`;
 		
+		return new Promise((resolve, reject) => {
+			tectalicOpenai(process.env.REACT_APP_OPENAI_API_KEY)
+			  .chatCompletions.create({
+				model: 'gpt-3.5-turbo',
+				max_tokens: 256,
+				messages: [{ role: 'user', content: prompt }],
+			  })
+			  .then((response) => {
+				const content = response.data.choices[0].message.content.trim();
+				console.log(content);
+				resolve(content);
+			  })
+			  .catch((error) => {
+				console.log('ChatGPT request errored:', error.message);
+				reject(error);
+			  });
+		  });
+
+
 		console.log('After expected response');
 		
 		// try {
@@ -227,10 +248,8 @@ export default function App() {
 													<Trash />
 												</ActionIcon>
 											</Group>
-											<Text color={'dimmed'} size={'md'} mt={'sm'}>
-												{task.summary
-													? task.summary
-													: 'No Summary'}
+											<Text color={'dimmed'} size={'md'} mt={'sm'} style={{ whiteSpace: 'pre-line' }}>
+											{task.summary ? task.summary : 'No Summary'}
 											</Text>
 										</Card>
 									);
