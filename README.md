@@ -25,12 +25,14 @@ Check out the video demo below.
 # Note:
 
 If you have issues realted to 'fs', 'os', 'path', 'crypto', edit webpack.config.js with:
-```resolve: {
+```
+resolve: {
   ...
   fallback: {
           "fs": false,
           "os": false,
           "path": false
         },
-}```
+}
+```
 <a href="https://stackoverflow.com/a/62011612">Issue Link</a>
