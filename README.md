@@ -22,6 +22,14 @@ https://github.com/EpicGazel/todo_react_app_gpt/assets/20029624/487f20c5-e3be-41
   ❤️ Feel free to create issues and contributions for features or bugs to this project.
 </p>
 
+
+# Installation
+
+  - git clone github.com/epicgazel/todo_react_app_gpt
+  - npm install
+  - configure .env with api key
+  - npm start 
+
 # Note:
 
 If you have issues realted to 'fs', 'os', 'path', 'crypto', edit webpack.config.js with:
