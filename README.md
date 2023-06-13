@@ -7,7 +7,7 @@
 
 Check out the video demo below.
 
-
+https://github.com/EpicGazel/todo_react_app_gpt/assets/20029624/487f20c5-e3be-4110-b8b3-da9a576ee619
 
 ## 😃 Features:
 
