@@ -21,6 +21,9 @@ import {
 import { useColorScheme } from '@mantine/hooks';
 import { useHotkeys, useLocalStorage } from '@mantine/hooks';
 
+//Set up for OpenAI API
+const tectalicOpenai = require('@tectalic/openai').default;
+
 export default function App() {
 	const [tasks, setTasks] = useState([]);
 	const [opened, setOpened] = useState(false);
@@ -40,11 +43,22 @@ export default function App() {
 	const taskSummary = useRef('');
 
 	function createTask() {
+		//Check if task summary already filled
+		let tempSummary = taskSummary.current.value;
+		if (taskSummary.current.value) {
+			console.log(taskSummary.current.value);
+		} else { //Otherwise generate a summary
+			console.log('No task summary');
+			tempSummary = getGPTResponse(taskTitle.current.value);
+		}
+
 		setTasks([
 			...tasks,
 			{
 				title: taskTitle.current.value,
-				summary: taskSummary.current.value,
+				//summary: taskSummary.current.value,
+				// summary: 'My summary test',
+				summary: tempSummary,
 			},
 		]);
 
@@ -52,7 +66,8 @@ export default function App() {
 			...tasks,
 			{
 				title: taskTitle.current.value,
-				summary: taskSummary.current.value,
+				// summary: taskSummary.current.value,
+				summary: tempSummary,
 			},
 		]);
 	}
@@ -79,6 +94,49 @@ export default function App() {
 
 	function saveTasks(tasks) {
 		localStorage.setItem('tasks', JSON.stringify(tasks));
+	}
+
+	// Get GPT response
+	function getGPTResponse(task_title) {
+		// return 'Test GPT Response';
+
+		// const openaiClient = tectalicOpenai(process.env.OPENAI_API_KEY);
+		// console.log(process.env.OPENAI_API_KEY);
+		// const openaiClient = tectalicOpenai(apiKey);
+
+		const pre_prompt = '(I am the pre prompt)';
+		const post_prompt = '(I am the post prompt)';
+		const prompt = `${pre_prompt}: ${task_title}\n
+						${post_prompt}: `;
+
+		try {
+			tectalicOpenai(config.OPENAI_API_KEY)
+			.chatCompletions.create({
+				model: 'text-davinci-003',
+				messages: [{ role: 'user', content: prompt }]
+			})
+			.then((response) => {
+				return response.data.choices[0].message.content.trim();
+			});
+		} catch (error) {
+			console.log('ChatGPT request errored.')
+		}
+		
+		console.log('After expected response');
+		
+		// try {
+		// 	const response = await openai.createCompletion({
+		// 		model: "text-davinci-003",
+		// 		prompt: `${pre_prompt}: task_title\n
+		// 				${post_prompt}: `,
+		// 		max_tokens:4000
+		// 		});
+
+		// 	return response.data.choices[0].text;
+		//   } catch(error) {
+		// 	console.error(error);
+		// 	alert(error.message);
+		//   }
 	}
 
 	useEffect(() => {
@@ -172,7 +230,7 @@ export default function App() {
 											<Text color={'dimmed'} size={'md'} mt={'sm'}>
 												{task.summary
 													? task.summary
-													: 'No summary was provided for this task'}
+													: 'No Summary'}
 											</Text>
 										</Card>
 									);
